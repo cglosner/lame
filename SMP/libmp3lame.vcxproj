@@ -243,9 +243,9 @@
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -253,8 +253,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -264,8 +264,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -292,9 +292,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -302,8 +302,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -313,8 +313,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -345,9 +345,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -355,8 +355,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -366,8 +366,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -396,9 +396,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -406,8 +406,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -417,8 +417,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -454,9 +454,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -464,8 +464,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -475,8 +475,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -512,9 +512,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -522,8 +522,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -533,8 +533,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -570,9 +570,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -580,8 +580,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -591,8 +591,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -628,9 +628,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <SubSystem>Windows</SubSystem>
     </Lib>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -638,8 +638,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -649,8 +649,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -688,9 +688,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <MinimumRequiredVersion>5.1</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -698,8 +698,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -709,8 +709,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
@@ -747,9 +747,9 @@ del /f /q $(OutDir)\licenses\mp3lame.txt
       <MinimumRequiredVersion>6.0</MinimumRequiredVersion>
     </Link>
     <PostBuildEvent>
-      <Command>mkdir $(OutDir)\include
-mkdir $(OutDir)\include\lame
-copy ..\include\lame.h $(OutDir)\include\lame
+      <Command>mkdir "$(OutDir)"\include
+mkdir "$(OutDir)"\include\lame
+copy ..\include\lame.h "$(OutDir)"\include\lame
 mkdir $(OutDir)\licenses
 copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
     </PostBuildEvent>
@@ -757,8 +757,8 @@ copy ..\LICENSE $(OutDir)\licenses\mp3lame.txt</Command>
       <Command>if exist ..\config.h (
 del ..\config.h
 )
-if exist $(OutDir)\include\lame (
-rd /s /q $(OutDir)\include\lame
+if exist "$(OutDir)"\include\lame (
+rd /s /q "$(OutDir)"\include\lame
 cd ../
 cd $(ProjectDir)
 )</Command>
@@ -768,8 +768,8 @@ cd $(ProjectDir)
     </CustomBuildStep>
     <CustomBuildStep>
       <Outputs>force_clean</Outputs>
-      <Command>if exist $(OutDir)\include\lame (
-rmdir /s /q $(OutDir)\include\lame
+      <Command>if exist "$(OutDir)"\include\lame (
+rmdir /s /q "$(OutDir)"\include\lame
 )
 if exist $(OutDir)\licenses\mp3lame.txt (
 del /f /q $(OutDir)\licenses\mp3lame.txt
