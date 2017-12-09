@@ -32,7 +32,7 @@ affect speed</font> <br>
 black = usability, portability, other
 
 <hr>
-<h3>LAME 3.100&nbsp; &nbsp;not yet released</h3>
+<h3>LAME 3.100&nbsp; &nbsp;2017 (in preparation)</h3>
 <ul>
   <li>Rog&eacute;rio Brito
     <ul>
@@ -71,6 +71,32 @@ black = usability, portability, other
       <li>Fix for tracker item <i>[ 3580176 ] environment variable LAMEOPT doesn't work anymore</i>
       </li>
       <li>Fix for tracker item <i>[ 3608583 ] input file name displayed with wrong character encoding (on windows console with CP_UTF8)</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #447 ] Fix dereference NULL and Buffer not NULL terminated issues. Thanks to Surabhi Mishra</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #445 ] dereference of a null pointer possible in loop. Thanks to Renu Tyagi</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #449 ] Make sure functions with SSE instructions maintain their own properly aligned stack. Thanks to Fabian Greffrath</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #458 ] Multiple Stack and Heap Corruptions from Malicious File. Thanks to Gareth Evans and Elio Blanca</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #460 ] A division by zero vulnerability. Thanks to Wang Shiyang, Liu Bingchang</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #461 ] CVE-2017-9410 fill_buffer_resample function in libmp3lame/util.c heap-based buffer over-read and ap</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #462 ] CVE-2017-9411 fill_buffer_resample function in libmp3lame/util.c invalid memory read and application crash</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #463 ] CVE-2017-9412 unpack_read_samples function in frontend/get_audio.c invalid memory read and application crash</i>
+      </li>
+      <li>Fix for bug ticket <i>[ #434 ] clip detect scale suggestion unaware of scale input value</i>
+      </li>
+      <li>HIP decoder bug fixed: decoding mixed blocks of lower sample frequency Layer3 data resulted in internal buffer overflow (write). Thanks to Henri Salo</i>
+      </li>
+    </ul>
+  </li>
+  <li>Alexander Leidinger
+    <ul>
+      <li>Feature request, patch ticket <i>[ #27 ] Add lame_encode_buffer_interleaved_int() by Michael Fink</i>
       </li>
     </ul>
   </li>

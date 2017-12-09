@@ -161,6 +161,7 @@ lame_print_config
 lame_print_internals
 lame_encode_buffer
 lame_encode_buffer_interleaved
+lame_encode_buffer_interleaved_int
 lame_encode_buffer_float
 lame_encode_buffer_ieee_float
 lame_encode_buffer_interleaved_ieee_float
@@ -230,3 +231,4 @@ id3tag_set_textinfo_utf16
 id3tag_set_comment_utf16
 lame_get_bitrate
 lame_get_samplerate
+lame_get_maximum_number_of_samples

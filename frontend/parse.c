@@ -2,7 +2,7 @@
  *      Command line parsing related functions
  *
  *      Copyright (c) 1999 Mark Taylor
- *                    2000-2012 Robert Hegemann
+ *                    2000-2017 Robert Hegemann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -70,6 +70,8 @@ char   *strchr(), *strrchr();
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #include <errno.h>
+#include <locale.h>
+#include <langinfo.h>
 #endif
 
 #if defined _ALLOW_INTERNAL_OPTIONS
@@ -151,9 +153,7 @@ currCharCodeSize(void)
     size_t n = 1;
     char dst[32];
     char* src = "A";
-    char* env_lang = getenv("LANG");
-    char* xxx_code = env_lang == NULL ? NULL : strrchr(env_lang, '.');
-    char* cur_code = xxx_code == NULL ? "" : xxx_code+1;
+    char* cur_code = nl_langinfo(CODESET);
     iconv_t xiconv = iconv_open(cur_code, "ISO_8859-1");
     if (xiconv != (iconv_t)-1) {
         for (n = 0; n < 32; ++n) {
@@ -181,9 +181,7 @@ char* fromLatin1( char* src )
         size_t const n = l*4;
         dst = calloc(n+4, 4);
         if (dst != 0) {
-            char* env_lang = getenv("LANG");
-            char* xxx_code = env_lang == NULL ? NULL : strrchr(env_lang, '.');
-            char* cur_code = xxx_code == NULL ? "" : xxx_code+1;
+            char* cur_code = nl_langinfo(CODESET);
             iconv_t xiconv = iconv_open(cur_code, "ISO_8859-1");
             if (xiconv != (iconv_t)-1) {
                 char* i_ptr = src;
@@ -207,9 +205,7 @@ char* fromUtf16( char* src )
         size_t const n = l*4;
         dst = calloc(n+4, 4);
         if (dst != 0) {
-            char* env_lang = getenv("LANG");
-            char* xxx_code = env_lang == NULL ? NULL : strrchr(env_lang, '.');
-            char* cur_code = xxx_code == NULL ? "" : xxx_code+1;
+            char* cur_code = nl_langinfo(CODESET);
             iconv_t xiconv = iconv_open(cur_code, "UTF-16LE");
             if (xiconv != (iconv_t)-1) {
                 char* i_ptr = (char*)src;
@@ -235,9 +231,7 @@ char* toLatin1( char* src )
         size_t const n = l*4;
         dst = calloc(n+4, 4);
         if (dst != 0) {
-            char* env_lang = getenv("LANG");
-            char* xxx_code = env_lang == NULL ? NULL : strrchr(env_lang, '.');
-            char* cur_code = xxx_code == NULL ? "" : xxx_code+1;
+            char* cur_code = nl_langinfo(CODESET);
             iconv_t xiconv = iconv_open("ISO_8859-1//TRANSLIT", cur_code);
             if (xiconv != (iconv_t)-1) {
                 char* i_ptr = (char*)src;
@@ -263,9 +257,7 @@ char* toUtf16( char* src )
         size_t const n = (l+1)*4;
         dst = calloc(n+4, 4);
         if (dst != 0) {
-            char* env_lang = getenv("LANG");
-            char* xxx_code = env_lang == NULL ? NULL : strrchr(env_lang, '.');
-            char* cur_code = xxx_code == NULL ? "" : xxx_code+1;
+            char* cur_code = nl_langinfo(CODESET);
             iconv_t xiconv = iconv_open("UTF-16LE//TRANSLIT", cur_code);
             dst[0] = 0xff;
             dst[1] = 0xfe;
@@ -1324,11 +1316,9 @@ int isCommonSuffix(char const* s_ext)
 }
 
 
-static 
-int generateOutPath(lame_t gfp, char const* inPath, char const* outDir, char* outPath)
+int generateOutPath(char const* inPath, char const* outDir, char const* s_ext, char* outPath)
 {
     size_t const max_path = PATH_MAX;
-    char const* s_ext = lame_get_decode_only(gfp) ? ".wav" : ".mp3";
 #if 1
     size_t i = 0;
     int out_dir_used = 0;
@@ -1406,7 +1396,7 @@ int generateOutPath(lame_t gfp, char const* inPath, char const* outDir, char* ou
     outPath[i] = 0;
     return 0;
 err_generateOutPath:
-    error_printf( "error: output file name too long" );
+    error_printf( "error: output file name too long\n" );
     return 1;
 #else
     strncpy(outPath, inPath, PATH_MAX + 1 - 4);
@@ -1506,7 +1496,7 @@ static int
 parse_args_(lame_global_flags * gfp, int argc, char **argv,
            char *const inPath, char *const outPath, char **nogap_inPath, int *num_nogap)
 {
-    char    outDir[1024] = "";
+    char    outDir[PATH_MAX+1] = "";
     int     input_file = 0;  /* set to 1 if we parse an input file name  */
     int     i;
     int     autoconvert = 0;
@@ -1523,6 +1513,9 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
     enum TextEncoding id3_tenc = TENC_LATIN1;
 #endif
 
+#ifdef HAVE_ICONV
+    setlocale(LC_CTYPE, "");
+#endif
     inPath[0] = '\0';
     outPath[0] = '\0';
     /* turn on display options. user settings may turn them off below */
@@ -2008,13 +2001,23 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
                     nogap_tags = 1;
 
                 T_ELIF("nogapout")
-                    /* FIXME: replace strcpy by safer strncpy */
-                    strcpy(outPath, nextArg);
-                argUsed = 1;
+                    int const arg_n = strnlen(nextArg, PATH_MAX);
+                    if (arg_n >= PATH_MAX) {
+                        error_printf("%s: %s argument length (%d) exceeds limit (%d)\n", ProgramName, token, arg_n, PATH_MAX);
+                        return -1;
+                    }
+                    strncpy(outPath, nextArg, PATH_MAX);
+                    outPath[PATH_MAX] = '\0';
+                    argUsed = 1;
 
                 T_ELIF("out-dir")
-                    /* FIXME: replace strcpy by safer strncpy */
-                    strcpy(outDir, nextArg);
+                    int const arg_n = strnlen(nextArg, PATH_MAX);
+                    if (arg_n >= PATH_MAX) {
+                        error_printf("%s: %s argument length (%d) exceeds limit (%d)\n", ProgramName, token, arg_n, PATH_MAX);
+                        return -1;
+                    }
+                    strncpy(outDir, nextArg, PATH_MAX);
+                    outDir[PATH_MAX] = '\0';
                     argUsed = 1;
 
                 T_ELIF("nogap")
@@ -2222,8 +2225,10 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
                             break;
                         case 'f':
                             lame_set_force_ms(gfp, 1);
-                            /* FALLTHROUGH */
+                            (void) lame_set_mode(gfp, JOINT_STEREO);
+                            break;
                         case 'j':
+                            lame_set_force_ms(gfp, 0);
                             (void) lame_set_mode(gfp, JOINT_STEREO);
                             break;
                         case 'm':
@@ -2239,7 +2244,8 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
                             (void) lame_set_scale_left(gfp, 0);
                             (void) lame_set_scale_right(gfp, 2);
                             break;
-                        case 'a':
+                        case 'a': /* same as 'j' ??? */
+                            lame_set_force_ms(gfp, 0);
                             (void) lame_set_mode(gfp, JOINT_STEREO);
                             break;
                         default:
@@ -2452,6 +2458,11 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
         return -1;
     }
 
+    if (lame_get_decode_only(gfp) && count_nogap > 0) {
+        error_printf("combination of nogap and decode not supported!\n");
+        return -1;
+    }
+
     if (inPath[0] == '-') {
         if (global_ui_config.silent == 0) { /* user didn't overrule default behaviour */
             global_ui_config.silent = 1;
@@ -2462,13 +2473,18 @@ parse_args_(lame_global_flags * gfp, int argc, char **argv,
         dosToLongFileName(inPath);
 #endif
 
-    if (outPath[0] == '\0' && count_nogap == 0) {
-        if (inPath[0] == '-') {
+    if (outPath[0] == '\0') { /* no explicit output dir or file */
+        if (count_nogap > 0) { /* in case of nogap encode */
+            strncpy(outPath, outDir, PATH_MAX);
+            outPath[PATH_MAX] = '\0'; /* whatever someone set via --out-dir <path> argument */
+        }
+        else if (inPath[0] == '-') {
             /* if input is stdin, default output is stdout */
             strcpy(outPath, "-");
         }
         else {
-            if (generateOutPath(gfp, inPath, outDir, outPath) != 0) {
+            char const* s_ext = lame_get_decode_only(gfp) ? ".wav" : ".mp3";
+            if (generateOutPath(inPath, outDir, s_ext, outPath) != 0) {
                 return -1;
             }
         }

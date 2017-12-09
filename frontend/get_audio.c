@@ -2,7 +2,7 @@
  *      Get Audio routines source file
  *
  *      Copyright (c) 1999 Albert L Faber
- *                    2008-2012 Robert Hegemann
+ *                    2008-2017 Robert Hegemann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -650,6 +650,12 @@ samples_to_skip_at_end(void)
 void
 close_infile(void)
 {
+#if defined(HAVE_MPGLIB)
+    if (global.hip != 0) {
+        hip_decode_exit(global.hip); /* release mp3decoder memory */
+        global. hip = 0;
+    }
+#endif
     close_input_file(global.music_in);
 #ifdef LIBSNDFILE
     if (global.snd_file) {
@@ -732,15 +738,24 @@ note: either buffer or buffer16 must be allocated upon call
 static int
 get_audio_common(lame_t gfp, int buffer[2][1152], short buffer16[2][1152])
 {
-    int     num_channels = lame_get_num_channels(gfp);
+    const int num_channels = lame_get_num_channels(gfp);
+    const int framesize = lame_get_framesize(gfp);
     int     insamp[2 * 1152];
     short   buf_tmp16[2][1152];
     int     samples_read;
-    int     framesize;
     int     samples_to_read;
     unsigned int remaining;
     int     i;
     int    *p;
+
+    /* sanity checks, that's what we expect to be true */
+    if ((num_channels < 1 || 2 < num_channels)
+      ||(framesize < 1 || 1152 < framesize)) {
+        if (global_ui_config.silent < 10) {
+            error_printf("Error: internal problem!\n");
+        }
+        return -1;
+    }
 
     /* 
      * NOTE: LAME can now handle arbritray size input data packets,
@@ -749,9 +764,7 @@ get_audio_common(lame_t gfp, int buffer[2][1152], short buffer16[2][1152])
      * will get out of sync if we read more than framesize worth of data.
      */
 
-    samples_to_read = framesize = lame_get_framesize(gfp);
-    assert(framesize <= 1152);
-
+    samples_to_read = framesize;
 
     /* if this flag has been set, then we are carefull to read
      * exactly num_samples and no more.  This is useful for .wav and .aiff
@@ -911,6 +924,35 @@ read_samples_mp3(lame_t gfp, FILE * musicin, short int mpg123pcm[2][1152])
     return out;
 }
 
+static
+int set_input_num_channels(lame_t gfp, int num_channels)
+{
+    if (gfp) {
+        if (-1 == lame_set_num_channels(gfp, num_channels)) {
+            if (global_ui_config.silent < 10) {
+                error_printf("Unsupported number of channels: %d\n", num_channels);
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static
+int set_input_samplerate(lame_t gfp, int input_samplerate)
+{
+    if (gfp) {
+        int sr = global_reader.input_samplerate;
+        if (sr == 0) sr = input_samplerate;
+        if (-1 == lame_set_in_samplerate(gfp, sr)) {
+            if (global_ui_config.silent < 10) {
+                error_printf("Unsupported sample rate: %d\n", sr);
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
 
 int
 WriteWaveHeader(FILE * const fp, int pcmbytes, int freq, int channels, int bits)
@@ -963,7 +1005,10 @@ open_snd_file(lame_t gfp, char const *inPath)
         if (gs_pSndFileIn == NULL) {
             if (global_raw_pcm.in_signed == 0 && global_raw_pcm.in_bitwidth != 8) {
                 error_printf("Unsigned input only supported with bitwidth 8\n");
-                exit(1);
+#if defined( _WIN32 ) && !defined(__MINGW32__)
+                free(file_name);
+#endif
+                return 0;
             }
             /* set some defaults incase input is raw PCM */
             gs_wfInfo.seekable = (global_reader.input_format != sf_raw); /* if user specified -r, set to not seekable */
@@ -1010,7 +1055,7 @@ open_snd_file(lame_t gfp, char const *inPath)
             if (global_ui_config.silent < 10) {
                 error_printf("Could not open sound file \"%s\".\n", lpszFileName);
             }
-            exit(1);
+            return 0;
         }
         sf_command(gs_pSndFileIn, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
 
@@ -1126,7 +1171,7 @@ open_snd_file(lame_t gfp, char const *inPath)
             if (global_ui_config.silent < 10) {
                 error_printf("Could not open sound file \"%s\".\n", lpszFileName);
             }
-            exit(1);
+            return 0;
         }
 
 
@@ -1134,17 +1179,13 @@ open_snd_file(lame_t gfp, char const *inPath)
             (void) lame_set_num_samples(gfp, gs_wfInfo.frames);
         else
             (void) lame_set_num_samples(gfp, MAX_U_32_NUM);
-        if (-1 == lame_set_num_channels(gfp, gs_wfInfo.channels)) {
-            if (global_ui_config.silent < 10) {
-                error_printf("Unsupported number of channels: %ud\n", gs_wfInfo.channels);
-            }
-            exit(1);
+        if (!set_input_num_channels(gfp, gs_wfInfo.channels)) {
+            sf_close(gs_pSndFileIn);
+            return 0;
         }
-        if (global_reader.input_samplerate == 0) {
-            (void) lame_set_in_samplerate(gfp, gs_wfInfo.samplerate);
-        }
-        else {
-            (void) lame_set_in_samplerate(gfp, global_reader.input_samplerate);
+        if (!set_input_samplerate(gfp, gs_wfInfo.samplerate)) {
+            sf_close(gs_pSndFileIn);
+            return 0;
         }
         global. pcmbitwidth = 32;
     }
@@ -1293,6 +1334,12 @@ read_samples_pcm(FILE * musicin, int sample_buffer[2304], int samples_to_read)
     default:
         if (global_ui_config.silent < 10) {
             error_printf("Only 8, 16, 24 and 32 bit input files supported \n");
+        }
+        return -1;
+    }
+    if (samples_to_read < 0 || samples_to_read > 2304) {
+        if (global_ui_config.silent < 10) {
+            error_printf("Error: unexpected number of samples to read: %d\n", samples_to_read);
         }
         return -1;
     }
@@ -1447,22 +1494,16 @@ parse_wave_header(lame_global_flags * gfp, FILE * sf)
 
 
         /* make sure the header is sane */
-        if (-1 == lame_set_num_channels(gfp, channels)) {
-            if (global_ui_config.silent < 10) {
-                error_printf("Unsupported number of channels: %u\n", channels);
-            }
+        if (!set_input_num_channels(gfp, channels))
             return 0;
-        }
-        if (global_reader.input_samplerate == 0) {
-            (void) lame_set_in_samplerate(gfp, samples_per_sec);
-        }
-        else {
-            (void) lame_set_in_samplerate(gfp, global_reader.input_samplerate);
-        }
+        if (!set_input_samplerate(gfp, samples_per_sec))
+            return 0;
         /* avoid division by zero */
-        if (bits_per_sample < 1)
+        if (bits_per_sample < 1) {
+            if (global_ui_config.silent < 10)
+                error_printf("Unsupported bits per sample: %d\n", bits_per_sample);
             return -1;
-
+        }
         global. pcmbitwidth = bits_per_sample;
         global. pcm_is_unsigned_8bit = 1;
         global. pcm_is_ieee_float = (format_tag == WAVE_FORMAT_IEEE_FLOAT ? 1 : 0);
@@ -1634,18 +1675,10 @@ parse_aiff_header(lame_global_flags * gfp, FILE * sf)
         /* make sure the header is sane */
         if (0 != aiff_check2(&aiff_info))
             return 0;
-        if (-1 == lame_set_num_channels(gfp, aiff_info.numChannels)) {
-            if (global_ui_config.silent < 10) {
-                error_printf("Unsupported number of channels: %u\n", aiff_info.numChannels);
-            }
+        if (!set_input_num_channels(gfp, aiff_info.numChannels))
             return 0;
-        }
-        if (global_reader.input_samplerate == 0) {
-            (void) lame_set_in_samplerate(gfp, (int) aiff_info.sampleRate);
-        }
-        else {
-            (void) lame_set_in_samplerate(gfp, global_reader.input_samplerate);
-        }
+        if (!set_input_samplerate(gfp, (int) aiff_info.sampleRate))
+            return 0;
         (void) lame_set_num_samples(gfp, aiff_info.numSampleFrames);
         global. pcmbitwidth = aiff_info.sampleSize;
         global. pcm_is_unsigned_8bit = 0;
@@ -1749,23 +1782,14 @@ open_mpeg_file_part2(lame_t gfp, FILE* musicin, char const *inPath, int *enc_del
         if (global_ui_config.silent < 10) {
             error_printf("Error reading headers in mp3 input file %s.\n", inPath);
         }
-        close_input_file(musicin);
         return 0;
     }
 #endif
-    if (-1 == lame_set_num_channels(gfp, global_decoder.mp3input_data.stereo)) {
-        if (global_ui_config.silent < 10) {
-            error_printf("Unsupported number of channels: %ud\n",
-                         global_decoder.mp3input_data.stereo);
-        }
-        close_input_file(musicin);
+    if (!set_input_num_channels(gfp, global_decoder.mp3input_data.stereo)) {
         return 0;
     }
-    if (global_reader.input_samplerate == 0) {
-        (void) lame_set_in_samplerate(gfp, global_decoder.mp3input_data.samplerate);
-    }
-    else {
-        (void) lame_set_in_samplerate(gfp, global_reader.input_samplerate);
+    if (!set_input_samplerate(gfp, global_decoder.mp3input_data.samplerate)) {
+        return 0;
     }
     (void) lame_set_num_samples(gfp, global_decoder.mp3input_data.nsamp);
     return 1;
@@ -1788,7 +1812,7 @@ open_wave_file(lame_t gfp, char const *inPath, int *enc_delay, int *enc_padding)
             if (global_ui_config.silent < 10) {
                 error_printf("Could not find \"%s\".\n", inPath);
             }
-            exit(1);
+            return 0;
         }
     }
 
@@ -1796,7 +1820,8 @@ open_wave_file(lame_t gfp, char const *inPath, int *enc_delay, int *enc_padding)
         if (global_ui_config.silent < 10) {
             error_printf("sorry, vorbis support in LAME is deprecated.\n");
         }
-        exit(1);
+        close_input_file(musicin);
+        return 0;
     }
     else if (global_reader.input_format == sf_raw) {
         /* assume raw PCM */
@@ -1815,17 +1840,20 @@ open_wave_file(lame_t gfp, char const *inPath, int *enc_delay, int *enc_padding)
     if (global_reader.input_format == sf_mp123) {
         if (open_mpeg_file_part2(gfp, musicin, inPath, enc_delay, enc_padding))
             return musicin;
-        exit(2);
+        close_input_file(musicin);
+        return 0;
     }
     if (global_reader.input_format == sf_unknown) {
-        exit(1);
+        close_input_file(musicin);
+        return 0;
     }
 
     if (lame_get_num_samples(gfp) == MAX_U_32_NUM && musicin != stdin) {
+        int const tmp_num_channels = lame_get_num_channels(gfp);
         double const flen = lame_get_file_size(musicin); /* try to figure out num_samples */
-        if (flen >= 0) {
+        if (flen >= 0 && tmp_num_channels > 0 ) {
             /* try file size, assume 2 bytes per sample */
-            unsigned long fsize = (unsigned long) (flen / (2 * lame_get_num_channels(gfp)));
+            unsigned long fsize = (unsigned long) (flen / (2 * tmp_num_channels));
             (void) lame_set_num_samples(gfp, fsize);
             global. count_samples_carefully = 0;
         }
@@ -1866,6 +1894,7 @@ open_mpeg_file(lame_t gfp, char const *inPath, int *enc_delay, int *enc_padding)
     }
 #endif
     if ( 0 == open_mpeg_file_part2(gfp, musicin, inPath, enc_delay, enc_padding) ) {
+        close_input_file(musicin);
         return 0;
     }
     if (lame_get_num_samples(gfp) == MAX_U_32_NUM && musicin != stdin) {
@@ -2143,8 +2172,6 @@ lame_decode_fromfile(FILE * fd, short pcm_l[], short pcm_r[], mp3data_struct * m
             /* we are done reading the file, but check for buffered data */
             ret = hip_decode1_headers(global.hip, buf, len, pcm_l, pcm_r, mp3data);
             if (ret <= 0) {
-                hip_decode_exit(global.hip); /* release mp3decoder memory */
-                global. hip = 0;
                 return -1; /* done with file */
             }
             break;
@@ -2152,8 +2179,6 @@ lame_decode_fromfile(FILE * fd, short pcm_l[], short pcm_r[], mp3data_struct * m
 
         ret = hip_decode1_headers(global.hip, buf, len, pcm_l, pcm_r, mp3data);
         if (ret == -1) {
-            hip_decode_exit(global.hip); /* release mp3decoder memory */
-            global. hip = 0;
             return -1;
         }
         if (ret > 0)
