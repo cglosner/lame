@@ -197,7 +197,7 @@ progress_line(const lame_global_flags * gf, int full, int frames)
             res += digits(hour) + 1 + 5;
         }
         else {
-            sprintf(rst, "%02u:%02u", min, sec);
+            snprintf(rst, sizeof(rst), "%02u:%02u", min, sec);
             res += 5;
         }
         /* some problems when br_hist_TOT \approx br_hist_LR: You can't see that there are still MS frames */
